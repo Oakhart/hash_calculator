@@ -2,6 +2,7 @@
 #define PLEASEWAITDIALOG_H
 
 #include <QDialog>
+#include <QTimer>
 
 namespace Ui {
 class PleaseWaitDialog;
@@ -17,6 +18,13 @@ public:
 
 private:
     Ui::PleaseWaitDialog *ui;
+    QTimer *timer;
+    int progressBarValue;
+    bool ascending;
+
+private slots:
+    void onTick();
+    void on_pushButton_clicked();
 };
 
 #endif // PLEASEWAITDIALOG_H

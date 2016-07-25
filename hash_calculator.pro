@@ -13,8 +13,16 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    hashcalculator.cpp \
+    pleasewaitdialog.cpp \
+    resultdialog.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    hashcalculator.h \
+    pleasewaitdialog.h \
+    resultdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    pleasewaitdialog.ui \
+    resultdialog.ui

@@ -2,6 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFileDialog>
+
+#include "hashcalculator.h"
+#include "pleasewaitdialog.h"
+#include "resultdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +22,29 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QFileDialog *fileDialog;
+
+    QString fileName;
+
+    PleaseWaitDialog *pleaseWaitDialog;
+    ResultDialog    *resultDialog;
+
+    QVector<HashCalculator*> hashCalculatorVector;
+    QVector<QThread*> threadVector;
+
+    QTimer *threadTimer;
+
+    bool calculating;
+
+
+
+    void calculate_MD5_and_SHA1();
+
+private slots:
+    void onFileSelected(const QString & path);
+    void on_toolButton_clicked();
+    void on_pushButton_clicked();
+    void onTick();
 };
 
 #endif // MAINWINDOW_H
