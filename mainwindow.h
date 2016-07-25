@@ -44,6 +44,7 @@ private:
 private slots:
     void onFileSelected(const QString & path);
     void onResultDialogClose();
+    void onPleaseWaittDialogClose();
     void on_toolButton_clicked();
     void on_pushButton_clicked();
     void onTick();

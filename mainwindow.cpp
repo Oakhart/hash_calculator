@@ -8,12 +8,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+    pleaseWaitDialog = new PleaseWaitDialog(this);
+    resultDialog = new ResultDialog(this);
     fileDialog = new QFileDialog(this);
     threadTimer = new QTimer(this);
 
+
     threadTimer->setSingleShot(false);
 
+    connect( pleaseWaitDialog, SIGNAL(closePleasWaitDialog()), this, SLOT(onPleaseWaittDialogClose()) );
+    connect( resultDialog, SIGNAL(closingDialog()), this, SLOT(onResultDialogClose()));
     connect( fileDialog, SIGNAL(currentChanged(QString)), this, SLOT(onFileSelected(QString)) );
     connect( threadTimer, SIGNAL(timeout()), this, SLOT(onTick()));
 
@@ -51,15 +55,14 @@ void MainWindow::calculate_MD5_and_SHA1()
             hashCalculatorVector.back()->setHashAlgorithm(QCryptographicHash::Sha1);
         }
 
-        hashCalculatorVector.back()->init(threadVector.back());
+        hashCalculatorVector.back()->init(*threadVector.back());
+        hashCalculatorVector.back()->moveToThread(threadVector.back());
         threadVector.back()->start();
 
     }
     threadTimer->start(500);
-    resultDialog = new ResultDialog(this);
+    resultDialog->clearData();
     resultDialog->setAlgorithms(QCryptographicHash::Md5, QCryptographicHash::Sha1);
-
-    connect( resultDialog, SIGNAL(closingDialog()), this, SLOT(onResultDialogClose()));
 }
 
 void MainWindow::calculateSingleChecksum(QCryptographicHash::Algorithm algoritm)
@@ -69,14 +72,13 @@ void MainWindow::calculateSingleChecksum(QCryptographicHash::Algorithm algoritm)
 
     hashCalculatorVector.back()->setFileName(fileName);
     hashCalculatorVector.back()->setHashAlgorithm(algoritm);
-    hashCalculatorVector.back()->init(threadVector.back());
+    hashCalculatorVector.back()->init(*threadVector.back());
+    hashCalculatorVector.back()->moveToThread(threadVector.back());
     threadVector.back()->start();
 
     threadTimer->start(500);
-    resultDialog = new ResultDialog(this);
+    resultDialog->clearData();
     resultDialog->setAlgorithms(algoritm);
-
-    connect( resultDialog, SIGNAL(closingDialog()), this, SLOT(onResultDialogClose()));
 }
 
 
@@ -148,7 +150,7 @@ void MainWindow::on_pushButton_clicked()
             calculateSingleChecksum(QCryptographicHash::Sha3_512);
         }
 
-        pleaseWaitDialog = new PleaseWaitDialog(this);
+        pleaseWaitDialog->reinit();
         pleaseWaitDialog->show();
     }
 }
@@ -171,7 +173,6 @@ void  MainWindow::onTick()
     }
 
     pleaseWaitDialog->close();
-    delete pleaseWaitDialog;
     resultDialog->setChecksums(hashStrings[0], hashStrings[1]);
     resultDialog->show();
     threadTimer->stop();
@@ -180,5 +181,12 @@ void  MainWindow::onTick()
 void MainWindow::onResultDialogClose()
 {
     resultDialog->clearData();
+    calculating = false;
+}
+
+void MainWindow::onPleaseWaittDialogClose()
+{
+    hashCalculatorVector.clear();
+    threadVector.clear();
     calculating = false;
 }

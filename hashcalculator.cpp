@@ -1,15 +1,16 @@
 #include "hashcalculator.h"
 #include <QFile>
+#include <QDebug>
 
 HashCalculator::HashCalculator(QObject *parent) : QObject(parent)
 {
 
 }
 
-void HashCalculator::init(QThread *thread)
+void HashCalculator::init(QThread &thread)
 {
-    this->thread = thread;
-    connect( this->thread, SIGNAL(started()), this, SLOT(CalculateHash()) );
+    this->thread = &thread;
+    connect( &thread, SIGNAL(started()), this, SLOT(CalculateHash()) );
 }
 
 void HashCalculator::CalculateHash()

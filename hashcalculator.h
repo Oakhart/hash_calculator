@@ -4,13 +4,14 @@
 #include <QObject>
 #include <QThread>
 #include <QCryptographicHash>
+#include <QTimer>
 
 class HashCalculator : public QObject
 {
     Q_OBJECT
 public:
     explicit HashCalculator(QObject *parent = 0);
-    void init(QThread *thread);
+    void init(QThread &thread);
     void setFileName(QString fileName);
     void setHashAlgorithm(QCryptographicHash::Algorithm hashAlgorithm);
 

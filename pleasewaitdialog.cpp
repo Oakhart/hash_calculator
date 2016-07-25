@@ -14,8 +14,6 @@ PleaseWaitDialog::PleaseWaitDialog(QWidget *parent) :
     timer->setSingleShot(false);
 
     connect(timer, SIGNAL(timeout()), this, SLOT(onTick()) );
-
-    timer->start(8);
     ui->progressBar->setRange(0,100);
 
 }
@@ -48,5 +46,13 @@ void PleaseWaitDialog::onTick()
 
 void PleaseWaitDialog::on_pushButton_clicked()
 {
+    emit closePleasWaitDialog();
+    timer->stop();
+}
 
+void PleaseWaitDialog::reinit()
+{
+    ui->progressBar->setInvertedAppearance(false);
+    ui->progressBar->setValue(0);
+    timer->start(16);
 }

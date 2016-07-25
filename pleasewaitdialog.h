@@ -16,6 +16,7 @@ public:
     explicit PleaseWaitDialog(QWidget *parent = 0);
     ~PleaseWaitDialog();
 
+    void reinit();
 private:
     Ui::PleaseWaitDialog *ui;
     QTimer *timer;
@@ -25,6 +26,9 @@ private:
 private slots:
     void onTick();
     void on_pushButton_clicked();
+
+signals:
+    void closePleasWaitDialog();
 };
 
 #endif // PLEASEWAITDIALOG_H
