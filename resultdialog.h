@@ -21,12 +21,13 @@ public:
 
     void setChecksums(QString sum1, QString sum2 = "");
     void setAlgorithms(int algorithm1, int algorithm2 = 100);
+    void clearData();
+
+private slots:
+    void on_pushButton_clicked();
 
 private:
     Ui::ResultDialog *ui;
-
-    QVector<QString> checkSums;
-    QVector<QString> labelStrings;
 
     QVector<QLabel*> labels;
     QVector<QLineEdit*> lineEdits;
@@ -35,6 +36,9 @@ private:
     QHBoxLayout* okBtnLayout;
 
     static const int invalidAlgorithm = 100;
+
+signals:
+    void closingDialog();
 
 
 };

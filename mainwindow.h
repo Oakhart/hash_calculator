@@ -39,9 +39,11 @@ private:
 
 
     void calculate_MD5_and_SHA1();
+    void calculateSingleChecksum(QCryptographicHash::Algorithm algoritm);
 
 private slots:
     void onFileSelected(const QString & path);
+    void onResultDialogClose();
     void on_toolButton_clicked();
     void on_pushButton_clicked();
     void onTick();

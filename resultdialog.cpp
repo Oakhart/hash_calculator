@@ -27,7 +27,6 @@ void ResultDialog::setChecksums(QString sum1, QString sum2)
             lineEdits.back()->setReadOnly(true);
             lineEdits.back()->setText(sums[i]);
             lineEdits.back()->setVisible(true);
-            qDebug() << sums[i];
 
             hlayouts.push_back(new QHBoxLayout());
             hlayouts.back()->addWidget(labels[i]);
@@ -48,8 +47,6 @@ void ResultDialog::setChecksums(QString sum1, QString sum2)
         okBtnLayout->addStretch();
 
     dialogLayout->insertLayout(-1, okBtnLayout);
-    qDebug() << "OK layout dobaven kum vertikalniq";
-
 }
 
 void ResultDialog::setAlgorithms(int algorithm1, int algorithm2 )
@@ -59,7 +56,6 @@ void ResultDialog::setAlgorithms(int algorithm1, int algorithm2 )
     algorithms[1] = algorithm2;
 
     for(int i = 0; i < 2; ++i ){
-    qDebug() << algorithms[i];
         if(algorithms[i] != invalidAlgorithm){
             labels.push_back(new QLabel());
         }
@@ -92,3 +88,17 @@ void ResultDialog::setAlgorithms(int algorithm1, int algorithm2 )
         }
     }
 }
+
+void ResultDialog::clearData()
+{
+    labels.clear();
+    lineEdits.clear();
+    hlayouts.clear();
+}
+
+void ResultDialog::on_pushButton_clicked()
+{
+    emit closingDialog();
+    this->close();
+}
+
