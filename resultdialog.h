@@ -37,8 +37,8 @@ private:
 
     static const int invalidAlgorithm = 100;
 
-signals:
-    void closingDialog();
+    void clearLayout(QLayout* layout, bool deleteWidgets = true);
+
 
 
 };

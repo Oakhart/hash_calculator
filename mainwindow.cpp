@@ -2,6 +2,23 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <QRadioButton>
+
+static QString radioButtonLabels[] = {
+
+    "MD4",
+    "MD5",
+    "SHA-1"
+    "SHA-224 (SHA-2)",
+    "SHA-256 (SHA-2)",
+    "SHA-384 (SHA-2)",
+    "SHA-512 (SHA-2)",
+    "SHA3-224",
+    "SHA3-256",
+    "SHA3-384",
+    "SHA3-512",
+    "MD5 and SHA-1"
+};
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -9,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     pleaseWaitDialog = new PleaseWaitDialog(this);
-    resultDialog = new ResultDialog(this);
     fileDialog = new QFileDialog(this);
     threadTimer = new QTimer(this);
 
@@ -17,12 +33,27 @@ MainWindow::MainWindow(QWidget *parent) :
     threadTimer->setSingleShot(false);
 
     connect( pleaseWaitDialog, SIGNAL(closePleasWaitDialog()), this, SLOT(onPleaseWaitDialogClose()) );
-    connect( resultDialog, SIGNAL(closingDialog()), this, SLOT(onResultDialogClose()));
     connect( fileDialog, SIGNAL(currentChanged(QString)), this, SLOT(onFileSelected(QString)) );
     connect( threadTimer, SIGNAL(timeout()), this, SLOT(onTick()));
 
     ui->radioButton_SHA_1->setChecked(true);
     calculating = false;
+
+    radioButtons = {
+      ui->radioButton_MD4,
+      ui->radioButton_MD5,
+      ui->radioButton_SHA_1,
+      ui->radioButton_SHA_224,
+      ui->radioButton_SHA_256,
+      ui->radioButton_SHA_384,
+      ui->radioButton_SHA_512,
+      ui->radioButton_SHA_3_224,
+      ui->radioButton_SHA_3_256,
+      ui->radioButton_SHA_3_384,
+      ui->radioButton_SHA_3_512,
+      ui->radioButton_Both
+    };
+
 }
 
 MainWindow::~MainWindow()
@@ -61,7 +92,7 @@ void MainWindow::calculate_MD5_and_SHA1()
 
     }
     threadTimer->start(500);
-    resultDialog->clearData();
+        resultDialog = new ResultDialog();
     resultDialog->setAlgorithms(QCryptographicHash::Md5, QCryptographicHash::Sha1);
 }
 
@@ -77,13 +108,14 @@ void MainWindow::calculateSingleChecksum(QCryptographicHash::Algorithm algoritm)
     threadVector.back()->start();
 
     threadTimer->start(500);
-    resultDialog->clearData();
+    resultDialog = new ResultDialog();
     resultDialog->setAlgorithms(algoritm);
 }
 
 
 void MainWindow::on_pushButton_clicked()
 {
+    qDebug() << calculating;
     if(!calculating){
 
         hashCalculatorVector.clear();
@@ -100,58 +132,19 @@ void MainWindow::on_pushButton_clicked()
             return;
         }
 
-        calculating = true;
+        for(int i = 0; i < SHA1_AND_MD5; ++i){
+            if( radioButtons[i]->isChecked() ){
+                calculateSingleChecksum( static_cast<QCryptographicHash::Algorithm>(i) );
+            }
+        }
 
-        if(ui->radioButton_Both->isChecked()){
+        if(radioButtons[SHA1_AND_MD5]->isChecked()){
             calculate_MD5_and_SHA1();
-        }
-
-        if(ui->radioButton_MD4->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Md4);
-        }
-
-        if(ui->radioButton_MD5->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Md5);
-        }
-
-        if(ui->radioButton_SHA_1->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Sha1);
-        }
-
-        if(ui->radioButton_SHA_224->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Sha224);
-        }
-
-        if(ui->radioButton_SHA_256->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Sha256);
-        }
-
-        if(ui->radioButton_SHA_384->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Sha384);
-        }
-
-        if(ui->radioButton_SHA_512->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Sha512);
-        }
-
-        if(ui->radioButton_SHA_3_224->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Sha3_224);
-        }
-
-        if(ui->radioButton_SHA_3_256->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Sha3_256);
-        }
-
-        if(ui->radioButton_SHA_3_384->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Sha3_384);
-        }
-
-        if(ui->radioButton_SHA_3_512->isChecked()){
-            calculateSingleChecksum(QCryptographicHash::Sha3_512);
         }
 
         pleaseWaitDialog->reinit();
         pleaseWaitDialog->show();
+
     }
 }
 
@@ -169,19 +162,14 @@ void  MainWindow::onTick()
 
     foreach(HashCalculator *hash, hashCalculatorVector){
         hashStrings[iterator].append( hash->hashValue.toHex() );
-        iterator++;
+        ++iterator;
     }
 
     pleaseWaitDialog->close();
+    calculating = false;
     resultDialog->setChecksums(hashStrings[0], hashStrings[1]);
     resultDialog->show();
     threadTimer->stop();
-}
-
-void MainWindow::onResultDialogClose()
-{
-    resultDialog->clearData();
-    calculating = false;
 }
 
 void MainWindow::onPleaseWaitDialogClose()

@@ -2,6 +2,22 @@
 #include "ui_resultdialog.h"
 #include "QDebug"
 
+static const QString resultLabels[] = {
+
+    "MD4 Checksum: ",
+    "MD5 Checksum: ",
+    "SHA-1 Checksum: ",
+    "SHA-224 (SHA-2) Checksum: ",
+    "SHA-256 (SHA-2) Checksum: ",
+    "SHA-384 (SHA-2) Checksum: ",
+    "SHA-512 (SHA-2) Checksum: ",
+    "SHA3-224 Checksum: ",
+    "SHA3-256 Checksum: ",
+    "SHA3-384 Checksum: ",
+    "SHA3-512 Checksum: ",
+
+};
+
 ResultDialog::ResultDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ResultDialog)
@@ -31,7 +47,6 @@ void ResultDialog::setChecksums(QString sum1, QString sum2)
             hlayouts.push_back(new QHBoxLayout());
             hlayouts.back()->addWidget(labels[i]);
             hlayouts.back()->addWidget(lineEdits[i]);
-
         }
     }
 
@@ -44,61 +59,28 @@ void ResultDialog::setChecksums(QString sum1, QString sum2)
     okBtnLayout = new QHBoxLayout();
     okBtnLayout->addStretch();
     okBtnLayout->addWidget(ui->pushButton);
-        okBtnLayout->addStretch();
+    okBtnLayout->addStretch();
 
     dialogLayout->insertLayout(-1, okBtnLayout);
 }
 
 void ResultDialog::setAlgorithms(int algorithm1, int algorithm2 )
 {
-    int algorithms[2];
-    algorithms[0] = algorithm1;
-    algorithms[1] = algorithm2;
+    int algorithms[2] = {algorithm1, algorithm2};
+//    algorithms[0] = algorithm1;
+//    algorithms[1] = algorithm2;
 
     for(int i = 0; i < 2; ++i ){
         if(algorithms[i] != invalidAlgorithm){
             labels.push_back(new QLabel());
-        }
-
-        switch(algorithms[i]){
-
-            case 0:{ labels.back()->setText("MD4 Checksum: "); break; }
-
-            case 1:{ labels.back()->setText("MD5 Checksum: "); break; }
-
-            case 2:{ labels.back()->setText("SHA-1 Checksum: "); break; }
-
-            case 3:{ labels.back()->setText("SHA-224 (SHA-2) Checksum: "); break; }
-
-            case 4:{ labels.back()->setText("SHA-256 (SHA-2) Checksum: "); break; }
-
-            case 5:{ labels.back()->setText("SHA-384 (SHA-2) Checksum: "); break; }
-
-            case 6:{ labels.back()->setText("SHA-512 (SHA-2) Checksum: "); break; }
-
-            case 7:{ labels.back()->setText("SHA3-224 Checksum: "); break; }
-
-            case 8:{ labels.back()->setText("SHA3-256 Checksum: "); break; }
-
-            case 9:{ labels.back()->setText("SHA3-384 Checksum: "); break; }
-
-            case 10:{ labels.back()->setText("SHA3-512 Checksum: "); break; }
-
-            default: { break;}
+            labels.back()->setText(resultLabels[algorithms[i]]);
         }
     }
 }
 
-void ResultDialog::clearData()
-{
-    labels.clear();
-    lineEdits.clear();
-    hlayouts.clear();
-}
-
 void ResultDialog::on_pushButton_clicked()
 {
-    emit closingDialog();
     this->close();
+    this->deleteLater();
 }
 
