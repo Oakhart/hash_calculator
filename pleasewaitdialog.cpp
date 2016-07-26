@@ -7,9 +7,6 @@ PleaseWaitDialog::PleaseWaitDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    progressBarValue = 1;
-    ascending = true;
-
     timer = new QTimer(this);
     timer->setSingleShot(false);
 
@@ -51,8 +48,11 @@ void PleaseWaitDialog::on_pushButton_clicked()
 }
 
 void PleaseWaitDialog::reinit()
-{
+{   progressBarValue = 1;
     ui->progressBar->setInvertedAppearance(false);
-    ui->progressBar->setValue(0);
-    timer->start(16);
+    ui->progressBar->setValue(progressBarValue);
+    ascending = true;
+    timer->start(8);
+    this->show();
+
 }

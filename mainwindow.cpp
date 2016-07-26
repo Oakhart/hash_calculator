@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     threadTimer->setSingleShot(false);
 
-    connect( pleaseWaitDialog, SIGNAL(closePleasWaitDialog()), this, SLOT(onPleaseWaittDialogClose()) );
+    connect( pleaseWaitDialog, SIGNAL(closePleasWaitDialog()), this, SLOT(onPleaseWaitDialogClose()) );
     connect( resultDialog, SIGNAL(closingDialog()), this, SLOT(onResultDialogClose()));
     connect( fileDialog, SIGNAL(currentChanged(QString)), this, SLOT(onFileSelected(QString)) );
     connect( threadTimer, SIGNAL(timeout()), this, SLOT(onTick()));
@@ -44,7 +44,7 @@ void MainWindow::calculate_MD5_and_SHA1()
 {
     for(int i = 0; i < 2; ++i){
 
-        hashCalculatorVector.push_back( new HashCalculator(this) );
+        hashCalculatorVector.push_back( new HashCalculator() );
         threadVector.push_back( new QThread(this) );
 
         hashCalculatorVector.back()->setFileName(fileName);
@@ -67,7 +67,7 @@ void MainWindow::calculate_MD5_and_SHA1()
 
 void MainWindow::calculateSingleChecksum(QCryptographicHash::Algorithm algoritm)
 {
-    hashCalculatorVector.push_back( new HashCalculator(this) );
+    hashCalculatorVector.push_back( new HashCalculator() );
     threadVector.push_back( new QThread(this) );
 
     hashCalculatorVector.back()->setFileName(fileName);
@@ -184,9 +184,10 @@ void MainWindow::onResultDialogClose()
     calculating = false;
 }
 
-void MainWindow::onPleaseWaittDialogClose()
+void MainWindow::onPleaseWaitDialogClose()
 {
     hashCalculatorVector.clear();
     threadVector.clear();
     calculating = false;
+    threadTimer->stop();
 }
