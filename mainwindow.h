@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QFileDialog>
 
-
 #include "hashcalculator.h"
 #include "pleasewaitdialog.h"
 #include "resultdialog.h"

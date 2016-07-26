@@ -24,6 +24,8 @@ ResultDialog::ResultDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    this->resize(700,160);
+
 }
 
 ResultDialog::~ResultDialog()
@@ -33,9 +35,7 @@ ResultDialog::~ResultDialog()
 
 void ResultDialog::setChecksums(QString sum1, QString sum2)
 {
-    QString sums[2];
-    sums[0] = sum1;
-    sums[1] = sum2;
+    QString sums[2] = { sum1, sum2 };
 
     for(int i = 0; i < 2; ++i ){
         if(sums[i].size() != 0){
@@ -44,31 +44,29 @@ void ResultDialog::setChecksums(QString sum1, QString sum2)
             lineEdits.back()->setText(sums[i]);
             lineEdits.back()->setVisible(true);
 
-            hlayouts.push_back(new QHBoxLayout());
-            hlayouts.back()->addWidget(labels[i]);
-            hlayouts.back()->addWidget(lineEdits[i]);
+            vlayouts.push_back(new QVBoxLayout());
+            vlayouts.back()->addWidget(labels[i]);
+            vlayouts.back()->addWidget(lineEdits[i]);
         }
     }
 
     dialogLayout = new QVBoxLayout(this);
 
-    for(int i = 0; i < hlayouts.size(); ++i){
-        dialogLayout->insertLayout(-1, hlayouts[i]);
+    for(int i = 0; i < vlayouts.size(); ++i){
+        dialogLayout->insertLayout(-1, vlayouts[i]);
 
     }
     okBtnLayout = new QHBoxLayout();
     okBtnLayout->addStretch();
     okBtnLayout->addWidget(ui->pushButton);
     okBtnLayout->addStretch();
-
+    dialogLayout->addStretch(1);
     dialogLayout->insertLayout(-1, okBtnLayout);
 }
 
 void ResultDialog::setAlgorithms(int algorithm1, int algorithm2 )
 {
     int algorithms[2] = {algorithm1, algorithm2};
-//    algorithms[0] = algorithm1;
-//    algorithms[1] = algorithm2;
 
     for(int i = 0; i < 2; ++i ){
         if(algorithms[i] != invalidAlgorithm){

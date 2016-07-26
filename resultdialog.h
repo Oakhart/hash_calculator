@@ -31,7 +31,7 @@ private:
 
     QVector<QLabel*> labels;
     QVector<QLineEdit*> lineEdits;
-    QVector<QHBoxLayout*> hlayouts;
+    QVector<QVBoxLayout*> vlayouts;
     QVBoxLayout *dialogLayout;
     QHBoxLayout* okBtnLayout;
 

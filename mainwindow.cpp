@@ -115,7 +115,6 @@ void MainWindow::calculateSingleChecksum(QCryptographicHash::Algorithm algoritm)
 
 void MainWindow::on_pushButton_clicked()
 {
-    qDebug() << calculating;
     if(!calculating){
 
         hashCalculatorVector.clear();
