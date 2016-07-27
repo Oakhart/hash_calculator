@@ -51,9 +51,9 @@ private:
     QVector<HashCalculator*>    hashCalculatorVector;   //!< objects for calculating checksums. Each object calculates only one checksum, and runs in different thread
     QVector<QThread*>           threadVector;           //!< vector of threads, in which HashCalculator objects are calculating
     QVector<class QRadioButton*>radioButtons;           //!< vector of pointers to all radio buttons in the interface ( for easier access )
-    QVector<HashCalculator*>    calculatorsForDeletion;
-    QVector<QThread*>           threadsForDeletion;
-    QTimer*                     clearingTimer;
+    QVector<HashCalculator*>    calculatorsForDeletion; //!< vector, holding calculator objects, scheduled for deletion, after their corresponding threads exit
+    QVector<QThread*>           threadsForDeletion;     //!< vector, holding threads scheduled for deletion
+    QTimer*                     clearingTimer;          //!< timer responsible for deleting scheduled for deletion objects from calculatorsForDeletion and threadsForDeletion
     QTimer*                     threadTimer;            //!< timer, which starts the check for running threads
     bool calculating;                                   //!< flag, indicating whether a calculation is running. If it's up, "Calculate Hash" button is inactive.
 
@@ -69,8 +69,19 @@ private:
      */
     void calculateSingleChecksum(QCryptographicHash::Algorithm algoritm);
 
+    /**
+     * @brief deleteThreads - Schedules all current threads for deletion, and clears the vector with current threads
+     */
     void deleteThreads();
+
+    /**
+     * @brief deleteHashcalculators - Schedules all current calculating objects for deletion, and clears the vector with current calculating objects
+     */
     void deleteHashcalculators();
+
+    /**
+     * @brief clearAfterCalculation - Clears both calculating objects and threads and starts a timer, responsible for deleting them
+     */
     void clearAfterCalculation();
 
 

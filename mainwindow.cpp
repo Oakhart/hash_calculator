@@ -224,6 +224,7 @@ void MainWindow::onPleaseWaitDialogClose()
 
 void MainWindow::deleteThreads()
 {
+    // moves all items to the vector of items scheduled for deletion, and clears the vector used during calculation
     for(int i = 0; i < threadVector.size(); ++i)
     {
         threadsForDeletion.push_back(threadVector[i]);
@@ -234,6 +235,7 @@ void MainWindow::deleteThreads()
 
 void MainWindow::deleteHashcalculators()
 {
+    // moves all items to the vector of items scheduled for deletion, and clears the vector used during calculation
     for(int i = 0; i < hashCalculatorVector.size(); ++i)
     {
         calculatorsForDeletion.push_back(hashCalculatorVector[i]);
@@ -247,21 +249,25 @@ void MainWindow::onTickClear()
 
     for(int i = 0; i < threadsForDeletion.size(); ++i){
 
+        //if the thread is running - do nothing
         if(threadsForDeletion[i]->isRunning()){
             continue;
         }
 
-
+        // creates pointers for the items to be deleted
         QThread* thread = threadsForDeletion[i];
         HashCalculator* calculator = calculatorsForDeletion[i];
 
+        // removes items from the vectors
         calculatorsForDeletion.removeAt(i);
         threadsForDeletion.removeAt(i);
 
+        // disconnects the calculator object slots from the thread signals
         calculator->disconnectFromThread();
 
-        delete(thread);
-        delete(calculator);
+
+        delete thread;
+        delete calculator;
     }
 
     if(threadsForDeletion.isEmpty()){
