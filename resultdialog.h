@@ -21,7 +21,6 @@ public:
 
     void setChecksums(QString sum1, QString sum2 = "");
     void setAlgorithms(int algorithm1, int algorithm2 = 100);
-    void clearData();
 
 private slots:
     void on_pushButton_clicked();

@@ -14,6 +14,7 @@ public:
     void init(QThread &thread);
     void setFileName(QString fileName);
     void setHashAlgorithm(QCryptographicHash::Algorithm hashAlgorithm);
+    void disconnectFromThread();
 
     QByteArray hashValue;
 
@@ -28,7 +29,7 @@ private:
     QString fileName;
     QThread *thread;
     QCryptographicHash::Algorithm algorithm;
-
+    class QMutex* mutex;
     QByteArray fileChecksum(const QString &fileName,
                             QCryptographicHash::Algorithm hashAlgorithm);
 };

@@ -50,8 +50,11 @@ private:
     ResultDialog*               resultDialog;           //!< dialog, displaying the checksum
     QVector<HashCalculator*>    hashCalculatorVector;   //!< objects for calculating checksums. Each object calculates only one checksum, and runs in different thread
     QVector<QThread*>           threadVector;           //!< vector of threads, in which HashCalculator objects are calculating
-    QTimer*                     threadTimer;            //!< timer, which starts the check for running threads
     QVector<class QRadioButton*>radioButtons;           //!< vector of pointers to all radio buttons in the interface ( for easier access )
+    QVector<HashCalculator*>    calculatorsForDeletion;
+    QVector<QThread*>           threadsForDeletion;
+    QTimer*                     clearingTimer;
+    QTimer*                     threadTimer;            //!< timer, which starts the check for running threads
     bool calculating;                                   //!< flag, indicating whether a calculation is running. If it's up, "Calculate Hash" button is inactive.
 
     /**
@@ -65,6 +68,11 @@ private:
      * @param algoritm - The algorithm to be used for the hash calculation
      */
     void calculateSingleChecksum(QCryptographicHash::Algorithm algoritm);
+
+    void deleteThreads();
+    void deleteHashcalculators();
+    void clearAfterCalculation();
+
 
 private slots:
 
@@ -99,6 +107,13 @@ private slots:
      * Checks for running threads, and if there are none, displays the result of the calculation.
      */
     void onTick();
+
+    /**
+     * @brief onTickClear - Triggered when the clearTimer emits timeout()
+     * Deletes all threads and calculating objects from past calculations (if threads are not running)
+     */
+    void onTickClear();
+
 };
 
 #endif // MAINWINDOW_H

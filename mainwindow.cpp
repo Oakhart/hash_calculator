@@ -18,17 +18,23 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // creates the timer, checking for running threads
     threadTimer = new QTimer(this);
+    clearingTimer = new QTimer(this);
 
     // sets the timer in "pulse" mode
     threadTimer->setSingleShot(false);
+    clearingTimer->setSingleShot(false);
 
     // connects the "Main Window" slots (those which are not connected via the graphical editor) to the corresponding signals
     connect( pleaseWaitDialog, SIGNAL(closePleasWaitDialog()), this, SLOT(onPleaseWaitDialogClose()) );
     connect( fileDialog, SIGNAL(currentChanged(QString)), this, SLOT(onFileSelected(QString)) );
-    connect( threadTimer, SIGNAL(timeout()), this, SLOT(onTick()));
+    connect( threadTimer, SIGNAL(timeout()), this, SLOT(onTick()) );
+    connect( clearingTimer, SIGNAL(timeout()), this, SLOT(onTickClear()) );
 
     // the calculating flag is set down, when ther Main Window is created
     calculating = false;
+
+
+    clearingTimer->start(200);
 
     // saves pointers to ui radio buttons in the vector
     radioButtons = {
@@ -46,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
       ui->radioButton_Both
     };
 
+    radioButtons[SHA1]->setChecked(true);
 }
 
 MainWindow::~MainWindow()
@@ -120,16 +127,10 @@ void MainWindow::calculateSingleChecksum(QCryptographicHash::Algorithm algoritm)
     // gives the calculating object the name of the file, which checksum will be calculated
     hashCalculatorVector.back()->setFileName(fileName);
 
-    // sets the algorithm for the calculation
+    // sets the algorithm for the calculation, moves the calculating object into the thread, and starts it(the thread)
     hashCalculatorVector.back()->setHashAlgorithm(algoritm);
-
-    // connects the calculating object to the corresponding thread
     hashCalculatorVector.back()->init(*threadVector.back());
-
-    // moves the calculation in the thread. Object (which inherits QObject) cannot be moved to a thread if its parent is pointed explicitly
     hashCalculatorVector.back()->moveToThread(threadVector.back());
-
-    // starts the thread
     threadVector.back()->start();
 
     // starts the timer, responsible for checking whether there are running threads
@@ -151,9 +152,7 @@ void MainWindow::on_pushButton_clicked()
     }
 
     // deletes all existing calculating objects and threads
-    hashCalculatorVector.clear();
-    threadVector.clear();
-
+    clearAfterCalculation();
     // gets the name of the file, which checksum/s the user want
     fileName = ui->lineEdit->text();
 
@@ -182,15 +181,14 @@ void MainWindow::on_pushButton_clicked()
         calculate_MD5_and_SHA1();
     }
 
-    // resets the "Please Wait" dialog to initial state
+    // resets the "Please Wait" dialog to initial state and displays it
     pleaseWaitDialog->reinit();
-
-    // displays the "Please Wait" dialog
     pleaseWaitDialog->show();
 }
 
 void  MainWindow::onTick()
 {
+    // if there is a running thread - do nothing
     foreach(QThread* thr, threadVector){
         if(thr->isRunning()){
             return;
@@ -198,25 +196,84 @@ void  MainWindow::onTick()
     }
 
     QString hashStrings[2];
-
     int iterator = 0;
 
+    // gets the result from every calculating object
     foreach(HashCalculator *hash, hashCalculatorVector){
         hashStrings[iterator].append( hash->hashValue.toHex() );
         ++iterator;
     }
 
+    // closes the "Please Wait" dialog, and resets the calculating flag, the timer no longer needs to run
     pleaseWaitDialog->close();
     calculating = false;
+    threadTimer->stop();
+
+    // the checksums are given to the "Result" dialog, and it is displayed
     resultDialog->setChecksums(hashStrings[0], hashStrings[1]);
     resultDialog->show();
-    threadTimer->stop();
 }
 
 void MainWindow::onPleaseWaitDialogClose()
 {
-    hashCalculatorVector.clear();
-    threadVector.clear();
+    // when the "Please Wait" dialog "Cancel" button is clicked, all threads and calculating objects are deleted, calculation stops
+    clearAfterCalculation();
     calculating = false;
     threadTimer->stop();
+}
+
+void MainWindow::deleteThreads()
+{
+    for(int i = 0; i < threadVector.size(); ++i)
+    {
+        threadsForDeletion.push_back(threadVector[i]);
+    }
+
+    threadVector.clear();
+}
+
+void MainWindow::deleteHashcalculators()
+{
+    for(int i = 0; i < hashCalculatorVector.size(); ++i)
+    {
+        calculatorsForDeletion.push_back(hashCalculatorVector[i]);
+    }
+
+    hashCalculatorVector.clear();
+}
+
+void MainWindow::onTickClear()
+{
+
+    for(int i = 0; i < threadsForDeletion.size(); ++i){
+
+        if(threadsForDeletion[i]->isRunning()){
+            continue;
+        }
+
+
+        QThread* thread = threadsForDeletion[i];
+        HashCalculator* calculator = calculatorsForDeletion[i];
+
+        calculatorsForDeletion.removeAt(i);
+        threadsForDeletion.removeAt(i);
+
+        calculator->disconnectFromThread();
+
+        delete(thread);
+        delete(calculator);
+    }
+
+    if(threadsForDeletion.isEmpty()){
+        if(clearingTimer->isActive()){
+            clearingTimer->stop();
+        }
+    }
+}
+
+void MainWindow::clearAfterCalculation()
+{
+    deleteThreads();
+    deleteHashcalculators();
+    clearingTimer->start(200);
 }

@@ -1,6 +1,7 @@
 #include "hashcalculator.h"
 #include <QFile>
 #include <QDebug>
+#include <QMutex>
 
 HashCalculator::HashCalculator(QObject *parent) : QObject(parent)
 {
@@ -32,6 +33,9 @@ void HashCalculator::setHashAlgorithm(QCryptographicHash::Algorithm hashAlgorith
 QByteArray HashCalculator::fileChecksum(const QString &fileName,
                         QCryptographicHash::Algorithm hashAlgorithm)
 {
+    mutex = new QMutex();
+    mutex->lock();
+
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
         QCryptographicHash hash(hashAlgorithm);
@@ -39,5 +43,13 @@ QByteArray HashCalculator::fileChecksum(const QString &fileName,
             return hash.result();
         }
     }
+
+    mutex->unlock();
+
     return QByteArray();
+}
+
+void HashCalculator::disconnectFromThread()
+{
+    disconnect( thread, SIGNAL(started()), this, SLOT(CalculateHash()) );
 }
