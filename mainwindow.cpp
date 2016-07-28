@@ -112,7 +112,7 @@ void MainWindow::calculate_MD5_and_SHA1()
     resultDialog = new ResultDialog();
 
     // sets the result labels according to the calculating algorithms
-    resultDialog->setAlgorithms(QCryptographicHash::Md5, QCryptographicHash::Sha1);
+    resultDialog->setAlgorithmLabels(QCryptographicHash::Md5, QCryptographicHash::Sha1);
 }
 
 void MainWindow::calculateSingleChecksum(QCryptographicHash::Algorithm algoritm)
@@ -140,7 +140,7 @@ void MainWindow::calculateSingleChecksum(QCryptographicHash::Algorithm algoritm)
     resultDialog = new ResultDialog();
 
     // sets the result label according to the calculating algorithms
-    resultDialog->setAlgorithms(algoritm);
+    resultDialog->setAlgorithmLabels(algoritm);
 }
 
 
@@ -210,7 +210,7 @@ void  MainWindow::onTick()
     threadTimer->stop();
 
     // the checksums are given to the "Result" dialog, and it is displayed
-    resultDialog->setChecksums(hashStrings[0], hashStrings[1]);
+    resultDialog->setChecksumResults(hashStrings[0], hashStrings[1]);
     resultDialog->show();
 }
 
