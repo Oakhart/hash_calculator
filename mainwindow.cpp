@@ -82,7 +82,7 @@ void MainWindow::calculate_MD5_and_SHA1()
         hashCalculatorVector.push_back( new HashCalculator() );
 
         // creates a new thread, in which the object will do its calculations
-        threadVector.push_back( new QThread(this) );
+        threadVector.push_back( new QThread() );
 
         // gives the calculating object the name of the file, which checksum will be calculated
         hashCalculatorVector.back()->setFileName(fileName);
@@ -122,7 +122,7 @@ void MainWindow::calculateSingleChecksum(QCryptographicHash::Algorithm algoritm)
     hashCalculatorVector.push_back( new HashCalculator() );
 
     // creates a new thread, in which the object will do its calculations
-    threadVector.push_back( new QThread(this) );
+    threadVector.push_back( new QThread() );
 
     // gives the calculating object the name of the file, which checksum will be calculated
     hashCalculatorVector.back()->setFileName(fileName);
@@ -200,7 +200,7 @@ void  MainWindow::onTick()
 
     // gets the result from every calculating object
     foreach(HashCalculator *hash, hashCalculatorVector){
-        hashStrings[iterator].append( hash->hashValue.toHex() );
+        hashStrings[iterator].append( hash->getHashValueResult().toHex() );
         ++iterator;
     }
 
@@ -265,11 +265,12 @@ void MainWindow::onTickClear()
         // disconnects the calculator object slots from the thread signals
         calculator->disconnectFromThread();
 
-
+        // frees the memory these objects are taking
         delete thread;
         delete calculator;
     }
 
+    // if nothing is scheduled for deletion, timer no longer needs to run
     if(threadsForDeletion.isEmpty()){
         if(clearingTimer->isActive()){
             clearingTimer->stop();
@@ -279,6 +280,7 @@ void MainWindow::onTickClear()
 
 void MainWindow::clearAfterCalculation()
 {
+    // when the calculation is cancelled, or a new calculation start, the data from the previous calculation needs to be wiped out
     deleteThreads();
     deleteHashcalculators();
     clearingTimer->start(200);
